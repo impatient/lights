@@ -26,10 +26,21 @@ impl Lights {
             let leds = controller.leds_mut(0);
             if let Ok(pixs) = pixels.lock() {
                 for (idx, item) in pixs.iter().enumerate() {
-                    leds[idx] = [item.r, item.g, item.b, 0];
+                    // this chicanery is due to the board actually being BGR and the zig-zag layout
+                    // of pixels
+                    if idx / 10 % 2 == 1 {
+                        let base = idx / 10 * 10;
+                        let offset = idx - base;
+                        let placement = base + 9 - offset;
+                        leds[placement] = [item.b, item.g, item.r, 0];
+                    }
+                    else {
+                        leds[idx] = [item.b, item.g, item.r, 0];
+                    }
                 }
             }
             controller.render();
         }
     }
 }
+

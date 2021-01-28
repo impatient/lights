@@ -24,7 +24,7 @@ fn main() {
 
     let args_vec : Vec<String> = env::args().collect();
     let fltk = !args_vec.contains(&String::from("pi"));
-    let pi = args_vec.contains(&String::from("pi"));
+    let pi = !fltk;
     // look shadowing intentional first class.
     // vec macro, size 100, initialized "off"
     let pixels: Vec<RGB> = vec![RGB { r: 0, g: 0, b: 0 }; 100];
@@ -33,7 +33,7 @@ fn main() {
     // acr = multi thread reference counter
     let pixels = Arc::new(pixels);
 
-    println!("Hi Mazie!!!")
+    println!("Hi Mazie!!!");
 
     // Was planning on triggering reload through this channel. 
     // Switched to just letting each read at their leisure
@@ -56,12 +56,16 @@ fn main() {
       });
     }
 
-    let src = GifSrc::new(String::from("/home/scott/sample.gif"));
+    if args_vec.contains(&String::from("gif")) {
+        let src = GifSrc::new(String::from("/home/pi/sample.gif"));
 
-    src.animate(&pixels);
-    //loop {
-        //random(&pixels);
-    //}
+        src.animate(&pixels);
+    }
+    else {
+        loop {
+            random(&pixels);
+        }
+    }
 }
 
 fn random(pixels: &Arc<Mutex<Vec<RGB>>>) {
@@ -76,9 +80,13 @@ fn random(pixels: &Arc<Mutex<Vec<RGB>>>) {
                 pixel.g = rand::random::<u8>();
                 pixel.b = rand::random::<u8>();
             }
+
         }
 
 }
+
+
+
 // TODO move this into ISS
 #[tokio::main]
 async fn mains() -> Result<(), Error> {
